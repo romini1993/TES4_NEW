@@ -10,7 +10,6 @@
         :root { --bg: #0f172a; --card: #1e293b; --accent: #38bdf8; --text: #f8fafc; --subtext: #94a3b8; --up: #4ade80; --down: #f87171; }
         * { box-sizing: border-box; font-family: 'Segoe UI', sans-serif; -webkit-tap-highlight-color: transparent; }
         
-        /* Layout Tracker (Bisa Tenggelam) */
         html, body { background: var(--bg); color: var(--text); margin: 0; padding: 0; min-height: 100%; }
         .container { width: 100%; max-width: 420px; margin: 0 auto; display: flex; flex-direction: column; }
 
@@ -33,9 +32,10 @@
         .control-row { display: flex; justify-content: space-between; gap: 6px; margin-bottom: 5px; }
         .control-select { background: var(--card); color: white; border: 1px solid #334155; border-radius: 6px; font-size: 10px; padding: 6px; outline: none; cursor: pointer; flex: 1; }
 
-        #main-list { padding: 5px 10px 150px 10px; }
+        /* Jarak bawah biar koin gak ketutup menu */
+        #main-list { padding: 5px 10px 180px 10px; }
 
-        /* MENU BAWAH (SMART HIDE) */
+        /* SMART HIDE MENU BAWAH */
         #bottom-bar {
             position: fixed;
             bottom: 0;
@@ -45,10 +45,11 @@
             max-width: 420px;
             background: var(--bg);
             border-top: 1px solid #334155;
-            padding: 10px 15px 15px 15px;
-            transition: bottom 0.4s ease-in-out;
+            padding: 10px 15px 20px 15px;
+            transition: transform 0.2s ease-out;
             z-index: 1000;
         }
+        .hide-menu { transform: translate(-50%, 100%); }
 
         .search-box { display: flex; gap: 6px; margin-bottom: 10px; }
         .search-box input { flex: 1; background: var(--card); border: 1px solid #334155; color: white; padding: 10px; border-radius: 8px; outline: none; font-size: 13px; }
@@ -141,17 +142,17 @@
 <div id="toast-msg"></div>
 
 <script>
-    // FUNGSI SMART HIDE MENU BAWAH
+    // SMART HIDE SATSET
     let lastScrollTop = 0;
     window.addEventListener("scroll", function() {
         let st = window.pageYOffset || document.documentElement.scrollTop;
         let bBar = document.getElementById("bottom-bar");
-        if (st > lastScrollTop && st > 100) { bBar.style.bottom = "-150px"; } 
-        else { bBar.style.bottom = "0"; }
+        if (st > lastScrollTop && st > 50) { bBar.classList.add("hide-menu"); } 
+        else { bBar.classList.remove("hide-menu"); }
         lastScrollTop = st <= 0 ? 0 : st;
     }, false);
 
-    // DATA & LOGIC ASLI TES4 (DIKUNCI)
+    // LOGIC ASLI TES4 (DIKUNCI)
     let usdToIdr = 16000;
     let prices = {}; let changes = {}; let coinMapCG = {};
     let currentTab = 'exchange'; let isFetching = false;
@@ -162,7 +163,25 @@
     let expandedItem = null;
     let currentMode = 'restore';
 
-    const exchangeLogos = { "BINANCE": "https://assets.coingecko.com/markets/images/52/standard/binance.jpg?1706864274", "BYBIT": "https://assets.coingecko.com/markets/images/698/standard/bybit_spot.png?1706864649", "OKX": "https://s2.coinmarketcap.com/static/img/exchanges/64x64/294.png", "GATE": "https://s2.coinmarketcap.com/static/img/exchanges/64x64/302.png", "TOKOCRYPTO": "https://assets.coingecko.com/markets/images/501/large/toko.png?1706864476", "INDODAX": "https://assets.coingecko.com/markets/images/3/large/logogram-Indodax-new-_JPG_format.jpg?1706864243", "PINTU": "https://pintu.co.id/favicon.ico", "MEXC": "https://s2.coinmarketcap.com/static/img/exchanges/64x64/544.png", "KUCOIN": "https://s2.coinmarketcap.com/static/img/exchanges/64x64/311.png", "BITMART": "https://assets.coingecko.com/markets/images/239/standard/Bitmart.png?1706864341", "BITGET": "https://assets.coingecko.com/markets/images/540/standard/2023-07-25_21.47.43.jpg?1706864507", "COINBASE": "https://assets.coingecko.com/markets/images/23/standard/Coinbase_Coin_Primary.png?1706864258", "UPBIT": "https://assets.coingecko.com/markets/images/117/standard/upbit.png?1706864294", "SUI": "https://assets.coingecko.com/asset_platforms/images/126/standard/sui-ocean-square.png?1727791325", "SOL": "https://assets.coingecko.com/asset_platforms/images/5/standard/solana.png?1706606708", "TON": "https://assets.coingecko.com/asset_platforms/images/142/small/tonblockchain.jpeg?1706606805", "WALLET": "https://assets.coingecko.com/coins/images/11085/standard/Trust.png?1696511026" };
+    const exchangeLogos = { 
+        "BINANCE": "https://assets.coingecko.com/markets/images/52/standard/binance.jpg?1706864274", 
+        "BYBIT": "https://assets.coingecko.com/markets/images/698/standard/bybit_spot.png?1706864649", 
+        "OKX": "https://s2.coinmarketcap.com/static/img/exchanges/64x64/294.png", 
+        "GATE": "https://s2.coinmarketcap.com/static/img/exchanges/64x64/302.png", 
+        "TOKOCRYPTO": "https://assets.coingecko.com/markets/images/501/large/toko.png?1706864476", 
+        "INDODAX": "https://assets.coingecko.com/markets/images/3/large/logogram-Indodax-new-_JPG_format.jpg?1706864243", 
+        "PINTU": "https://pintu.co.id/favicon.ico", 
+        "MEXC": "https://s2.coinmarketcap.com/static/img/exchanges/64x64/544.png", 
+        "KUCOIN": "https://s2.coinmarketcap.com/static/img/exchanges/64x64/311.png", 
+        "BITMART": "https://assets.coingecko.com/markets/images/239/standard/Bitmart.png?1706864341", 
+        "BITGET": "https://assets.coingecko.com/markets/images/540/standard/2023-07-25_21.47.43.jpg?1706864507",
+        "COINBASE": "https://assets.coingecko.com/markets/images/23/standard/Coinbase_Coin_Primary.png?1706864258",
+        "UPBIT": "https://assets.coingecko.com/markets/images/117/standard/upbit.png?1706864294",
+        "SUI": "https://assets.coingecko.com/asset_platforms/images/126/standard/sui-ocean-square.png?1727791325",
+        "SOL": "https://assets.coingecko.com/asset_platforms/images/5/standard/solana.png?1706606708",
+        "TON": "https://assets.coingecko.com/asset_platforms/images/142/small/tonblockchain.jpeg?1706606805",
+        "WALLET": "https://assets.coingecko.com/coins/images/11085/standard/Trust.png?1696511026"
+    };
 
     window.onload = () => { migrateToUppercase(); document.getElementById('sort-order').value = localStorage.getItem('last_sort') || 'manual'; document.getElementById('currency-view').value = localStorage.getItem('last_cur') || 'IDR'; renderList(); fetchKurs(); fetchCoinMap(); fetchAll(); setInterval(fetchAll, 60000); };
 
@@ -244,8 +263,11 @@
             else if (sortType === 'value') exArr.sort((a, b) => b.totalValue - a.totalValue);
             
             exArr.forEach(ex => {
-                let brand = ex.name.split(' ')[0]; let subKoin = watchlist.filter(s => coinSources[s]?.includes(ex.name));
-                // SINKRONISASI SORT KE DALAM EXPAND
+                let brand = ex.name.split(' ')[0]; 
+                let suffix = ex.name.split(' ').slice(1).join(' ');
+                const logo = exchangeLogos[brand] || "";
+                let subKoin = watchlist.filter(s => coinSources[s]?.includes(ex.name));
+
                 if (sortType === 'name') subKoin.sort((a, b) => a.localeCompare(b));
                 else if (sortType === 'value') subKoin.sort((a, b) => {
                     let valA = ((typeof balances[a]?.[ex.name] === 'object' ? (parseFloat(balances[a][ex.name].amount||0) + parseFloat(balances[a][ex.name].staking||0)) : parseFloat(balances[a]?.[ex.name]||0)) * (prices[a]||0));
@@ -253,7 +275,7 @@
                     return valB - valA;
                 });
 
-                html += `<div class="coin-row"><div class="coin-card" onclick="toggleDetail('${ex.name}')"><div class="logo-wrapper" style="background:#000"><div class="logo-initial">${brand.substring(0,2)}</div></div><div class="info-group"><span class="symbol">${brand}</span></div><div style="text-align:right; margin-right:10px;"><span id="val-ex-${ex.name}" style="font-weight:bold; font-size:14px;">-</span></div></div><div id="det-${ex.name}" class="details" style="display:${expandedItem===ex.name?'block':'none'}">${subKoin.map(s => {
+                html += `<div class="coin-row"><div class="coin-card" onclick="toggleDetail('${ex.name}')"><div class="logo-wrapper" style="background:#000">${logo ? `<img src="${logo}">` : `<div class="logo-initial">${brand.substring(0,2)}</div>`}</div><div class="info-group"><span class="symbol">${brand}</span>${suffix ? `<span style="font-size: 11px; color: var(--subtext); font-weight: normal;"> - ${suffix.toLowerCase().replace(/\b\w/g, c => c.toUpperCase())}</span>` : ''}</div><div style="text-align:right; margin-right:10px;"><span id="val-ex-${ex.name}" style="font-weight:bold; font-size:14px;">-</span></div></div><div id="det-${ex.name}" class="details" style="display:${expandedItem===ex.name?'block':'none'}">${subKoin.map(s => {
                     const d = (balances[s] && balances[s][ex.name]) ? balances[s][ex.name] : {amount:'', staking:''};
                     return `<div class="source-row"><label class="source-label"><div class="logo-wrapper" style="width:20px; height:20px; border:none"><img src="https://coinicons-api.vercel.app/api/icon/${s.toLowerCase()}" onerror="handleLogoError(this, '${s}')"></div><span>${s}</span></label><div class="input-wrapper"><input type="number" class="source-input" inputmode="decimal" value="${d.amount||''}" oninput="updateBal('${s}','${ex.name}','amount',this.value)" placeholder="Amount"><input type="number" class="source-input" inputmode="decimal" value="${d.staking||''}" oninput="updateBal('${s}','${ex.name}','staking',this.value)" placeholder="Staking"></div><span class="del-src" onclick="removeCoinFromExchange('${s}', '${ex.name}')">×</span></div>`;
                 }).join('')}<div class="new-source-box"><input type="text" id="add-coin-to-${ex.name}" class="new-source-input" placeholder="Tambah Coin..." onkeypress="if(event.key==='Enter') addCoinToExchange('${ex.name}')"><button class="new-source-btn" onclick="addCoinToExchange('${ex.name}')">+</button></div></div></div>`;
@@ -264,7 +286,6 @@
             else if (sortType === 'value') filtered.sort((a, b) => (getCoinTotal(b)*(prices[b]||0)) - (getCoinTotal(a)*(prices[a]||0)));
             filtered.forEach(s => {
                 let subSrc = [...(coinSources[s]||[])];
-                // SINKRONISASI SORT KE DALAM EXPAND
                 if (sortType === 'name') subSrc.sort((a, b) => a.localeCompare(b));
                 else if (sortType === 'value') subSrc.sort((a, b) => {
                     let valA = ((typeof balances[s]?.[a] === 'object' ? (parseFloat(balances[s][a].amount||0) + parseFloat(balances[s][a].staking||0)) : parseFloat(balances[s]?.[a]||0)) * (prices[s]||0));
