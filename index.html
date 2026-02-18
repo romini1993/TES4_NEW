@@ -296,16 +296,29 @@
         "WALLET": "https://assets.coingecko.com/coins/images/11085/standard/Trust.png?1696511026"
     };
 
-    window.onload = () => {
-    // Tambahin ini: ambil data tab terakhir dari memori, kalau kosong default-nya 'exchange'
-    currentTab = localStorage.getItem('last_active_tab') || 'exchange';
+   window.onload = async () => { // Tambahin 'async' di sini
+    migrateToUppercase(); 
     
-    // Jalankan fungsi switchTab biar UI-nya langsung ke tab terakhir
-    switchTab(currentTab);
+    // 1. Ambil settingan urutan & mata uang
+    document.getElementById('sort-order').value = localStorage.getItem('last_sort') || 'manual'; 
+    document.getElementById('currency-view').value = localStorage.getItem('last_cur') || 'IDR'; 
+    
+    // 2. Tentukan tab terakhir tapi JANGAN render dulu
+    currentTab = localStorage.getItem('last_active_tab') || 'exchange';
+    document.getElementById('tab-ex').classList.toggle('active', currentTab === 'exchange'); 
+    document.getElementById('tab-coin').classList.toggle('active', currentTab === 'coin');
 
-    // ... sisa kode window.onload elu yang asli (migrate, fetch, dll) jangan dihapus ...
+    // 3. TARIK DATA DULU (Penting biar harga gak ilang)
+    await fetchKurs(); 
+    await fetchCoinMap(); 
+    await fetchAll(); 
+    
+    // 4. BARU RENDER LIST (Setelah harga ada)
+    renderList(); 
+
+    // 5. Jalanin interval update otomatis
+    setInterval(fetchAll, 60000); 
 };
-
     function migrateToUppercase() {
         let needsSave = false;
         watchlist = watchlist.map(s => { if(s !== s.toUpperCase()) needsSave = true; return s.toUpperCase(); });
