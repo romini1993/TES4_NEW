@@ -296,7 +296,15 @@
         "WALLET": "https://assets.coingecko.com/coins/images/11085/standard/Trust.png?1696511026"
     };
 
-    window.onload = () => { migrateToUppercase(); document.getElementById('sort-order').value = localStorage.getItem('last_sort') || 'manual'; document.getElementById('currency-view').value = localStorage.getItem('last_cur') || 'IDR'; renderList(); fetchKurs(); fetchCoinMap(); fetchAll(); setInterval(fetchAll, 60000); };
+    window.onload = () => {
+    // Tambahin ini: ambil data tab terakhir dari memori, kalau kosong default-nya 'exchange'
+    currentTab = localStorage.getItem('last_active_tab') || 'exchange';
+    
+    // Jalankan fungsi switchTab biar UI-nya langsung ke tab terakhir
+    switchTab(currentTab);
+
+    // ... sisa kode window.onload elu yang asli (migrate, fetch, dll) jangan dihapus ...
+};
 
     function migrateToUppercase() {
         let needsSave = false;
@@ -319,7 +327,23 @@
     }
 
     // --- CORE LOGIC ---
-    function switchTab(tab) { currentTab = tab; document.getElementById('tab-ex').classList.toggle('active', tab === 'exchange'); document.getElementById('tab-coin').classList.toggle('active', tab === 'coin'); renderList(); }
+    function switchTab(tab) { 
+    // 1. Cek dulu, kalau tab yang diklik sama dengan yang lagi aktif, STOP di sini (jangan refresh)
+    if (currentTab === tab && document.getElementById('main-list').innerHTML !== "") {
+        return; 
+    }
+
+    // 2. Kalau tab-nya beda, baru deh kita proses
+    currentTab = tab; 
+    localStorage.setItem('last_active_tab', tab); // Simpen posisi ke memori HP
+    
+    // 3. Update tampilan tombol tab-nya
+    document.getElementById('tab-ex').classList.toggle('active', tab === 'exchange'); 
+    document.getElementById('tab-coin').classList.toggle('active', tab === 'coin'); 
+    
+    // 4. Baru render ulang list-nya
+    renderList(); 
+}
     function updateSettings() { localStorage.setItem('last_sort', document.getElementById('sort-order').value); localStorage.setItem('last_cur', document.getElementById('currency-view').value); renderList(); }
 
     async function fetchKurs() { try { const r = await fetch('https://api.binance.com/api/v3/ticker/price?symbol=USDTIDR'); const d = await r.json(); if(d.price) { usdToIdr = parseFloat(d.price); document.getElementById('kurs-live').innerText = `USD/IDR: ${Math.round(usdToIdr).toLocaleString('id-ID')}`; updatePricesOnly(); } } catch(e) {} }
